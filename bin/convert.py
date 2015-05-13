@@ -11,32 +11,23 @@ drawMap = False
 if len(sys.argv) > 2:
     drawMap = True
 
-filterallpages = False
-minl = 0
-typeparl = "senateur"
-lastp = "all"
-if "-2013" in filepath:
-    filterallpages = True
-    mint = 155
-    maxt = 1190
-    minl = 120
-    l2 = 400
-elif "-2014" in filepath:
+minl = 200
+maxt = 1100
+l1 = 350
+if "senateurs_collaborateurs" in filepath:
+    mint = 220
+    senateursfirst = True
+elif "collaborateurs_senateurs" in filepath:
     mint = 200
-    maxt = 1100
-    lastp = 12
-    l2 = 300
-l1 = 200
-l3 = 475
+    senateursfirst = False
+
 with open("data/senateurs.json", 'r') as f:
     senateurs = [p["senateur"] for p in json.load(f)['senateurs']]
 
-re_gpe = re.compile(r' (UMP|SOC)$')
-re_app = re.compile(r'^\s*(app|ratt)[.\s]*', re.I)
-clean_app = lambda x: re_app.sub('', x)
-
-re_particule = re.compile(r"^(.*)\s+\((d[eu'\sla]+)\)\s*$")
+re_particule = re.compile(r"^(.*)\s+(d[eu'\sla]+)$")
 clean_part = lambda x: re_particule.sub(r'\2 \1', x).replace("' ", "'").replace('  ', ' ')
+
+clean_Mme = re.compile(r"^M[.mle]+\s+")
 
 re_clean_bal = re.compile(r'<[^>]+>')
 re_clean_spaces = re.compile(r'\s+')
@@ -58,39 +49,29 @@ def clean_accents(t):
     return t
 checker = lambda x: clean(clean_accents(x)).lower().strip()
 
-def find_parl(nom, prenom, groupe):
-    res = []
-    prenom = checker(prenom)
-    nom = checker(nom)
-    nom = nom.replace("leborgn'", "le borgn'")
-    nom = nom.replace("rihan-cypel", "rihan cypel")
-    for parl in parls:
-        if checker(parl['nom']) == "%s %s" % (prenom, nom) or (checker(parl['nom_de_famille']) == nom and checker(parl['prenom']) == prenom):
-            return parl
-        if (checker(parl['nom_de_famille']) == nom and parl['groupe_sigle'] == groupe) or (checker(parl['prenom']) == prenom and checker(parl['nom_de_famille']).startswith(nom)):
-            res.append(parl)
-    if not res:
-        sys.stderr.write("Could not find %s %s %s\n" % (typeparl, prenom, nom))
-        return None
-    if len(res) > 1:
-        sys.stderr.write("Found too many %s %s : %s\n" % (prenom, nom, res))
-    return res[0]
+reorder = lambda p: clean_part(checker("%s %s" % (p['nom_de_famille'], p['prenom'])))
 
-def unif_partis(p):
-    p = p.replace('et réalités', 'et Réalité')
-    p = p.replace('Ecologie', 'Écologie')
-    p = p.replace("Indépendants de la France de métropole et d'Outre ", "Les Indépendants de la France métropolitaine et d'Outre-")
-    p = p.replace('écologie les', 'Écologie Les')
-    for w in ['Français', 'Huiraatira', 'Réunion', 'Mouvement', 'Populaire', 'Indépendantiste', 'Martiniquais' ,'Ensemble', 'République', 'Unie', 'Socialisme', 'Outre-mer', 'Réalité']:
-        p = p.replace(w.lower(), w)
-    p = p.replace('Non déclaré', 'Non rattaché')
-    p = p.replace('Aucun parti', 'Non rattaché')
-    p = p.replace(' (URCID)', '')
-    p = p.replace('Union de la majorité municipale', 'La politique autrement (Union de la majorité municipale)') if p.startswith('Union') else p
-    p = p.replace('PSLE-Nouveau', 'PSLE Nouveau')
-    p = p.replace("Tavini Huiraatira no te ao ma'ohi (Front de libération de Polynésie)", "Front de libération de la Polynésie - Tavini Huiraatira no te ao ma'ohi")
-    p = p.replace('radicaux centristes', 'radicaux, centristes')
-    return p
+def find_parl(record):
+    nom = checker(clean_Mme.sub('', record[0]))
+    nom = nom.replace("conway-mouret", "conway mouret")
+    nom = nom.replace("deromedi jacqueline", "deromedi jacky")
+    nom = nom.replace("yonnet-salvator evelyne", "yonnet evelyne")
+    good = None
+    for parl in senateurs:
+        if reorder(parl) == nom:
+            good = parl
+            break
+    if not good:
+        sys.stderr.write("Could not find %s\n" % nom)
+        return
+    record[0] = good["nom"].encode('utf-8')
+    record[1] = good["nom_de_famille"].encode('utf-8')
+    record[2] = good["prenom"].encode('utf-8')
+    record[3] = good["sexe"].encode('utf-8')
+    record[7] = good["url_nossenateurs"].encode('utf-8')
+    record[8] = good["url_institution"].encode('utf-8')
+
+# TODO Split collabs in nom/prénom/sexe
 
 page = 0
 topvals = {}
@@ -98,11 +79,11 @@ leftvals = {}
 maxtop = 0
 maxleft = 0
 results = []
-headers = ['nom', 'prénom', 'groupe', 'rattachement_parti', 'sexe', 'département', 'id_nos%ss' % typeparl, 'url_institution']
-record = ["", "", "", "", "", "", "", ""]
+headers = ['sénateur', 'nom_sénateur', 'prénom_sénateur', 'sexe_sénateur', 'nom_collaborateur', 'prénom_collaborateur', 'sexe_collaborateur', 'url_nossénateurs', 'url_sénat']
+record = ["", "", "", "", "", "", "", "", ""]
 re_line = re.compile(r'<page number|text top="(\d+)" left="(\d+)"[^>]*font="(\d+)">(.*)</text>', re.I)
 for line in (xml).split("\n"):
-    #print "DEBUG %s" % line
+    #print >> sys.stderr, "DEBUG %s" % line
     if line.startswith('<page'):
         page += 1
     if not line.startswith('<text'):
@@ -126,43 +107,31 @@ for line in (xml).split("\n"):
     if drawMap:
         continue
     #print "DEBUG %s %s %s %s" % (font, left, top, text)
-    if ((page == 1 or filterallpages) and top < mint) or ((lastp == "all" or page == lastp) and top > maxt):
+    if top < mint or top > maxt:
         continue
     if left < minl:
         continue
     text = attrs.group(4).replace("&amp;", "&")
     if left < l1:
-        record[0] = clean_part(clean(text))
-    elif left < l2:
-        record[1] = clean(text)
-        match = re_gpe.search(record[1])
-        if match:
-            record[1] = re_gpe.sub('', record[1]).strip()
-            record[2] = match.group(1).strip()
-    elif left < l3:
-        if "<b>" in text:
-            a = text.split(' <b>')
-            record[2] = a[0]
-            record[3] = a[1]
-        else:
-            record[2] = clean(text)
-        record[2] = clean_app(record[2]).replace("Rassemblement-", "R").replace("ÉCOL.", 'ECOLO').replace('Ecolo', 'ECOLO')
+        val = clean(text)
+        idx = 0 if senateursfirst else 4
+        if " Mme " in val:
+            sys.stderr.write("WARNING: splitting %s\n" % val)
+            idx2 = 4 if senateursfirst else 0
+            record[idx], record[idx2] = val.split(" Mme ")
+            record[idx2] = "Mme " + record[idx2]
+            find_parl(record)
+            results.append(list(record))
+            continue
+        record[idx] = val
+        if senateursfirst:
+            find_parl(record)
     else:
-        record[3] = clean(text)
-    if record[3]:
-        if not "".join(record[:2]):
-            tmp = clean(record[3])
-            record = results.pop()
-            record[3] = "%s %s" % (clean(record[3]), tmp)
-        record[3] = unif_partis(record[3])
-        parl = find_parl(record[0], record[1], record[2])
-        if parl:
-            record[4] = parl.get('sexe').encode('utf-8')
-            record[5] = parl.get('nom_circo').encode('utf-8')
-            record[6] = parl.get('slug').encode('utf-8')
-            record[7] = parl.get('url_institution', parl.get('url_an')).encode('utf-8')
-        results.append(record)
-        record = ["", "", "", "", "", "", "", ""]
+        idx = 4 if senateursfirst else 0
+        record[idx] = clean(text)
+        if not senateursfirst:
+            find_parl(record)
+        results.append(list(record))
 
 if not drawMap:
     print ",".join(['"%s"' % h for h in headers])
