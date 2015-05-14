@@ -11,14 +11,14 @@ drawMap = False
 if len(sys.argv) > 2:
     drawMap = True
 
-minl = 200
-maxt = 1100
-l1 = 350
+minl = 100
+maxt = 730
+l1 = 200
 if "senateurs_collaborateurs" in filepath:
-    mint = 220
+    mint = 150
     senateursfirst = True
 elif "collaborateurs_senateurs" in filepath:
-    mint = 200
+    mint = 130
     senateursfirst = False
 
 with open("data/senateurs.json", 'r') as f:
