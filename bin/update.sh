@@ -28,13 +28,10 @@ echo "Testing resulting CSVs..."
 echo "----------------------------"
 echo
 
-sort data/liste_senateurs_collaborateurs.csv > data/liste_senateurs_collaborateurs.sort
-sort data/liste_collaborateurs_senateurs2.csv > data/liste_collaborateurs_senateurs2.sort
-if diff data/liste_*.sort | grep .; then
+if diff data/liste_*.csv | grep .; then
   echo "WARNING: differences between outputs from two sources, see above"
 else
   total=$((`cat data/liste_senateurs_collaborateurs.csv | wc -l` - 1))
   echo "Everything fine, $total collaborateurs found in both sources"
 fi
 echo
-rm -f data/liste_*.sort

@@ -156,7 +156,7 @@ for line in (xml).split("\n"):
 
 if not drawMap:
     print ",".join(['"%s"' % h for h in headers])
-    for i in results:
+    for i in sorted(results, key=lambda x: "%s - %s" % (x[0].encode('utf-8'), x[4])):
         for j in range(len(i)):
             i[j] = clean(i[j])
             try:    i[j] = i[j].encode('utf-8')
