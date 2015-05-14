@@ -1,6 +1,7 @@
 #!/bin/bash
 
 CACHE=$1
+cd $(echo $0 | sed 's#/[^/]*$##')/..
 mkdir -p pdfs pdfmaps data
 
 if [ -z "$CACHE" ]; then
