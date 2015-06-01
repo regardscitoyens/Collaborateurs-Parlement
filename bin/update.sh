@@ -36,6 +36,10 @@ if diff data/liste_*.csv | grep .; then
   echo "WARNING: differences between outputs from two sources, see above" >> /tmp/update_collabs_senat.tmp
 else
   total=$((`cat data/liste_senateurs_collaborateurs.csv | wc -l` - 1))
+  if [ "$total" -eq "-1" ]; then
+    echo "WARNING: something weird happened, stopping here for now..."
+    exit 1
+  fi
   echo "Everything fine, $total collaborateurs found in both sources" >> /tmp/update_collabs_senat.tmp
 fi
 echo >> /tmp/update_collabs_senat.tmp
