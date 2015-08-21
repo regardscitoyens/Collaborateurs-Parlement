@@ -27,10 +27,6 @@ with open("data/senateurs.json", 'r') as f:
 Mme = r"^M[.mle]+\s+"
 clean_Mme = re.compile(Mme)
 
-particule = r"d[euils'\s]+"
-re_particule = re.compile(r"^(.*)\s+(%s)$" % particule)
-clean_part = lambda x: re_particule.sub(r'\2 \1', x).replace("' ", "'").replace('  ', ' ')
-
 re_clean_bal = re.compile(r'<[^>]+>')
 re_clean_dash = re.compile(r'\s*-\s*')
 re_clean_spaces = re.compile(r'\s+')
@@ -52,9 +48,10 @@ def clean_accents(t):
     return t
 checker = lambda x: clean(clean_accents(x)).lower().strip()
 
-reorder = lambda p: clean_part(checker("%s %s" % (p['nom_de_famille'], p['prenom'])))
+reorder = lambda p: checker("%s %s" % (p['nom'].replace("%s " % p['prenom'], ""), p['prenom']))
 
 maj = ur"A-ZÀÂÉÈÊËÎÏÔÖÙÛÜÇ"
+particule = r"d[euils'\s]+"
 re_name = re.compile(ur"(%s)((?:(?:%s)?[%s'\-]+\s+)+)([%s][a-zàâéèêëîïôöùûüç].*)$" % (Mme, particule, maj, maj))
 
 def split_name(name):
@@ -72,7 +69,6 @@ def split_collab(record):
 
 def find_parl(record):
     nom = checker(clean_Mme.sub('', record[0]))
-    nom = nom.replace("conway-mouret", "conway mouret")
     nom = nom.replace("deromedi jacqueline", "deromedi jacky")
     nom = nom.replace("yonnet-salvator evelyne", "yonnet evelyne")
     record[1], record[2], record[3] = split_name(record[0])
@@ -85,7 +81,7 @@ def find_parl(record):
             record[8] = parl["url_nossenateurs_api"].replace('json', 'xml')
             record[9] = parl["url_institution"]
             return
-    sys.stderr.write("Could not find %s\n" % nom)
+    sys.stderr.write("Could not find %s -> %s\n" % (record[0], nom.encode('utf-8')))
 
 # TODO Split collabs in nom/prénom/sexe
 
