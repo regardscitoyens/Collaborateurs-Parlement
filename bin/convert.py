@@ -35,7 +35,7 @@ clean = lambda x: re_clean_spaces.sub(' ', re_clean_dash.sub('-', re_clean_bal.s
 regexps = [(re.compile(r), s) for r, s in [
     (u'[àÀâÂ]', 'a'),
     (u'[éÉèÈêÊëË]', 'e'),
-    (u'[îÎïÏ[]', 'i'),
+    (u'[îÎïÏ]', 'i'),
     (u'[ôÔöÔ]', 'o'),
     (u'[ùÙûÛüÜ]', 'u'),
     (u'[çÇ]', 'c'),
