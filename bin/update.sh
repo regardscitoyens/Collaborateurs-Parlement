@@ -33,11 +33,14 @@ echo "----------------------------" >> /tmp/update_collabs_senat.tmp
 echo >> /tmp/update_collabs_senat.tmp
 
 if diff data/liste_*.csv | grep .; then
-  echo "WARNING: differences between outputs from two sources, see above" >> /tmp/update_collabs_senat.tmp
+  echo "WARNING: differences between outputs from two sources:" >> /tmp/update_collabs_senat.tmp
+  cat /tmp/update_collabs_senat.tmp
+  exit 1
 else
   total=$((`cat data/liste_senateurs_collaborateurs.csv | wc -l` - 1))
   if [ "$total" -lt "300" ]; then
-    echo "WARNING: something weird happened, stopping here for now..."
+    echo "WARNING: something weird happened, stopping here for now..." >> /tmp/update_collabs_senat.tmp
+    cat /tmp/update_collabs_senat.tmp
     exit 1
   fi
   echo "Everything fine, $total collaborateurs found in both sources" >> /tmp/update_collabs_senat.tmp
