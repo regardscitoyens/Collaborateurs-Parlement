@@ -32,9 +32,10 @@ echo "Testing resulting CSVs..." >> /tmp/update_collabs_senat.tmp
 echo "----------------------------" >> /tmp/update_collabs_senat.tmp
 echo >> /tmp/update_collabs_senat.tmp
 
-if diff data/liste_*.csv | grep .; then
+if diff data/liste_*.csv | grep . > /dev/null ; then
   echo "WARNING: differences between outputs from two sources:" >> /tmp/update_collabs_senat.tmp
   cat /tmp/update_collabs_senat.tmp
+  diff data/liste_*.csv
   exit 1
 else
   total=$((`cat data/liste_senateurs_collaborateurs.csv | wc -l` - 1))
