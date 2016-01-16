@@ -94,6 +94,7 @@ results = []
 headers = ['sénateur', 'nom_sénateur', 'prénom_sénateur', 'sexe_sénateur', 'collaborateur', 'nom_collaborateur', 'prénom_collaborateur', 'sexe_collaborateur', 'url_api_nossénateurs', 'url_sénat']
 record = ["", "", "", "", "", "", "", "", "", ""]
 re_line = re.compile(r'<page number|text top="(\d+)" left="(\d+)"[^>]*font="(\d+)">(.*)</text>', re.I)
+re_tosplit = re.compile(r'^(.*) ((?:M.|Mme) .*)$')
 for line in (xml).split("\n"):
     #print >> sys.stderr, "DEBUG %s" % line
     if line.startswith('<page'):
@@ -127,11 +128,11 @@ for line in (xml).split("\n"):
     if left < l1:
         val = clean(text)
         idx = 0 if senateursfirst else 4
-        if " Mme " in val:
+        tosplit = re_tosplit.search(val)
+        if tosplit:
             sys.stderr.write("WARNING: splitting %s\n" % val)
             idx2 = 4 if senateursfirst else 0
-            record[idx], record[idx2] = val.split(" Mme ")
-            record[idx2] = "Mme " + record[idx2]
+            record[idx], record[idx2] = tosplit.groups()
             find_parl(record)
             split_collab(record)
             results.append(list(record))
