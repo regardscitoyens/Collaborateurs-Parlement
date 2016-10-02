@@ -71,6 +71,7 @@ def find_parl(record):
     nom = checker(clean_Mme.sub('', record[0]))
     nom = nom.replace("deromedi jacqueline", "deromedi jacky")
     nom = nom.replace("yonnet-salvator evelyne", "yonnet evelyne")
+    nom = nom.replace("laufoaulu lopeleto", "laufoaulu robert")
     record[1], record[2], record[3] = split_name(record[0])
     for parl in senateurs:
         if reorder(parl) == nom:
