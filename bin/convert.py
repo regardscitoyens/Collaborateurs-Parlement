@@ -12,17 +12,29 @@ if len(sys.argv) > 2:
     drawMap = True
 
 minl = 100
+mint = 130
 maxt = 730
 l1 = 200
+parls_type = "senateurs"
+parls_first = True
 if "senateurs_collaborateurs" in filepath:
     mint = 150
-    senateursfirst = True
 elif "collaborateurs_senateurs" in filepath:
-    mint = 130
-    senateursfirst = False
+    parls_first = False
+elif "deputes_collaborateurs" in filepath:
+    parls_type = "deputes"
+    minl = 50
+    mint = 85
+    maxt = 800
+    l1 = 75
+    l2 = 150
+    l3 = 250
+    l4 = 275
+    l5 = 350
+parl_type = parls_type.rstrip("s")
 
-with open("data/senateurs.json", 'r') as f:
-    senateurs = [p["senateur"] for p in json.load(f)['senateurs']]
+with open("data/%s.json" % parls_type, 'r') as f:
+    parls = [p[parl_type] for p in json.load(f)[parls_type]]
 
 Mme = r"^M[.mle]+\s+"
 clean_Mme = re.compile(Mme)
@@ -67,41 +79,55 @@ def split_name(name):
 def split_collab(record):
     record[5], record[6], record[7] = split_name(record[4])
 
-def find_parl(record):
+def find_parl(record, splitted=False):
     nom = checker(clean_Mme.sub('', record[0]))
     nom = nom.replace("deromedi jacqueline", "deromedi jacky")
     nom = nom.replace("yonnet-salvator evelyne", "yonnet evelyne")
     nom = nom.replace("laufoaulu lopeleto", "laufoaulu robert")
-    record[1], record[2], record[3] = split_name(record[0])
-    for parl in senateurs:
+    nom = nom.replace("azerot bruno", "azerot bruno nestor")
+    nom = nom.replace("de la verpillere charles", "de la verpilliere charles")
+    nom = nom.replace("debre bernard andre", "debre bernard")
+    nom = nom.replace("destans jean", "destans jean-louis")
+    nom = nom.replace("le borgn pierre-yves", "le borgn' pierre-yves")
+    nom = nom.replace("vlody jean-jacques", "vlody jean jacques")
+    nom = nom.replace("zimmermann marie jo", "zimmermann marie-jo")
+    if not splitted:
+        record[1], record[2], record[3] = split_name(record[0])
+    for parl in parls:
         if reorder(parl) == nom:
             record[0] = parl["nom"]
             #record[1] = parl["nom_de_famille"]
             #record[2] = parl["prenom"]
             #record[3] = parl["sexe"]
-            record[8] = parl["url_nossenateurs_api"].replace('json', 'xml')
-            record[9] = parl["url_institution"]
+            record[8] = parl["url_nos%s_api" % parls_type].replace('json', 'xml')
+            record[9] = parl.get("url_institution", parl.get("url_an", ""))
             return
     sys.stderr.write("Could not find %s -> %s\n" % (record[0], nom.encode('utf-8')))
 
-# TODO Split collabs in nom/prénom/sexe
+# Reorder xml lines
+xml_ordered = ""
+page_lines = []
+re_ordline = re.compile(r'<(page|text) (?:top="(\d+)" left="(\d+)"[^>])?', re.I)
+ordline = lambda l: [int(v or 0) if i else v for i, v in enumerate(re_ordline.search(l).groups())]
+for line in (xml).split("\n"):
+    if line.startswith('<text'):
+        page_lines.append(line)
+    elif line.startswith('</page'):
+        xml_ordered += "\n".join(sorted(page_lines, key=ordline))
+        page_lines = []
 
-page = 0
 topvals = {}
 leftvals = {}
 maxtop = 0
 maxleft = 0
 results = []
-headers = ['sénateur', 'nom_sénateur', 'prénom_sénateur', 'sexe_sénateur', 'collaborateur', 'nom_collaborateur', 'prénom_collaborateur', 'sexe_collaborateur', 'url_api_nossénateurs', 'url_sénat']
+headers = ['parlementaire', 'nom_parlementaire', 'prénom_parlementaire', 'sexe_parlementaire', 'collaborateur', 'nom_collaborateur', 'prénom_collaborateur', 'sexe_collaborateur', 'url_api_RC', 'url_institution']
 record = ["", "", "", "", "", "", "", "", "", ""]
 re_line = re.compile(r'<page number|text top="(\d+)" left="(\d+)"[^>]*font="(\d+)">(.*)</text>', re.I)
 re_tosplit = re.compile(r'^(.*) ((?:M.|Mme) .*)$')
-for line in (xml).split("\n"):
+sexize = lambda val: "H" if val == "M." else "F"
+for line in (xml_ordered).split("\n"):
     #print >> sys.stderr, "DEBUG %s" % line
-    if line.startswith('<page'):
-        page += 1
-    if not line.startswith('<text'):
-        continue
     attrs = re_line.search(line)
     if not attrs or not attrs.groups():
         raise Exception("WARNING : line detected with good font but wrong format %s" % line)
@@ -126,27 +152,50 @@ for line in (xml).split("\n"):
     if left < minl:
         continue
     text = attrs.group(4).replace("&amp;", "&")
+    # Handle députés
+    if parls_type == "deputes":
+        val = clean(text)
+        if left < l1:
+            record[3] = val
+        elif left < l2:
+            record[2] = val
+        elif left < l3:
+            record[1] = val
+            record[0] = record[3] + " " + record[1] + " " + record[2]
+            find_parl(record, splitted=True)
+            record[3] = sexize(record[3])
+        elif left < l4:
+            record[7] = val
+        elif left < l5:
+            record[6] = val
+        else:
+            record[5] = val
+            record[4] = record[7] + " " + record[5] + " " + record[6]
+            record[7] = sexize(record[7])
+            results.append(list(record))
+        continue
+    # Handle sénateurs
     if left < l1:
         val = clean(text)
-        idx = 0 if senateursfirst else 4
+        idx = 0 if parls_first else 4
         tosplit = re_tosplit.search(val)
         if tosplit:
             sys.stderr.write("WARNING: splitting %s\n" % val)
-            idx2 = 4 if senateursfirst else 0
+            idx2 = 4 if parls_first else 0
             record[idx], record[idx2] = tosplit.groups()
             find_parl(record)
             split_collab(record)
             results.append(list(record))
             continue
         record[idx] = val
-        if senateursfirst:
+        if parls_first:
             find_parl(record)
         else:
             split_collab(record)
     else:
-        idx = 4 if senateursfirst else 0
+        idx = 4 if parls_first else 0
         record[idx] = clean(text)
-        if not senateursfirst:
+        if not parls_first:
             find_parl(record)
         else:
             split_collab(record)
@@ -154,7 +203,7 @@ for line in (xml).split("\n"):
 
 if not drawMap:
     print ",".join(['"%s"' % h for h in headers])
-    for i in sorted(results, key=lambda x: "%s - %s" % (x[0].encode('utf-8'), x[4])):
+    for i in sorted(results, key=lambda x: ("%s %s - %s %s" % (x[1], x[2], x[5], x[6])).lower()):
         for j in range(len(i)):
             i[j] = clean(i[j])
             try:    i[j] = i[j].encode('utf-8')

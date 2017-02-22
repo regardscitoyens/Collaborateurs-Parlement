@@ -5,52 +5,79 @@ cd $(echo $0 | sed 's#/[^/]*$##')/..
 mkdir -p pdfs pdfmaps data
 
 if [ -z "$CACHE" ]; then
-  echo "Downloading sources..." > /tmp/update_collabs_senat.tmp
-  echo "--------------------------" >> /tmp/update_collabs_senat.tmp
+  echo "Downloading sources..." > /tmp/update_collabs.tmp
+  echo "--------------------------" >> /tmp/update_collabs.tmp
   wget -q "http://www.nossenateurs.fr/senateurs/json" -O data/senateurs.json
   wget -q "http://www.senat.fr/pubagas/liste_senateurs_collaborateurs.pdf" -O pdfs/liste_senateurs_collaborateurs.pdf
   wget -q "http://www.senat.fr/pubagas/liste_collaborateurs_senateurs2.pdf" -O pdfs/liste_collaborateurs_senateurs2.pdf
-  echo >> /tmp/update_collabs_senat.tmp
+  wget -q "http://www.nosdeputes.fr/deputes/json" -O data/deputes.json
+  wget -q "http://www2.assemblee-nationale.fr/static/collaborateurs/liste_deputes_collaborateurs.pdf" -O pdfs/liste_deputes_collaborateurs.pdf
+  echo >> /tmp/update_collabs.tmp
 fi
 
 source /usr/local/bin/virtualenvwrapper.sh
 workon collabs
 
-for pdffile in pdfs/*.pdf; do
-  echo "Processing $pdffile..." >> /tmp/update_collabs_senat.tmp
-  echo "--------------------------" >> /tmp/update_collabs_senat.tmp
-  pdftohtml -xml "$pdffile" > /dev/null 2>> /tmp/update_collabs_senat.tmp
+for pdffile in pdfs/*deputes*.pdf pdfs/*senateurs*.pdf; do
+  echo "Processing $pdffile..." >> /tmp/update_collabs.tmp
+  echo "--------------------------" >> /tmp/update_collabs.tmp
+  pdftohtml -xml "$pdffile" > /dev/null 2>> /tmp/update_collabs.tmp
   xmlfile=$(echo $pdffile | sed 's/\.pdf$/.xml/')
   # draw maps
-  ./bin/convert.py "$xmlfile" 1 2>> /tmp/update_collabs_senat.tmp
+  ./bin/convert.py "$xmlfile" 1 2>> /tmp/update_collabs.tmp
   csvfile=$(echo $pdffile | sed 's/\.pdf$/.csv/' | sed 's#pdfs/#data/#')
-  ./bin/convert.py "$xmlfile" > "$csvfile" 2>> /tmp/update_collabs_senat.tmp
-echo >> /tmp/update_collabs_senat.tmp
+  ./bin/convert.py "$xmlfile" > "$csvfile" 2>> /tmp/update_collabs.tmp
+  echo >> /tmp/update_collabs.tmp
 done
 
-echo "Testing resulting CSVs..." >> /tmp/update_collabs_senat.tmp
-echo "----------------------------" >> /tmp/update_collabs_senat.tmp
-echo >> /tmp/update_collabs_senat.tmp
+echo "Testing resulting CSVs..." >> /tmp/update_collabs.tmp
+echo "----------------------------" >> /tmp/update_collabs.tmp
+echo >> /tmp/update_collabs.tmp
 
-if diff data/liste_*.csv | grep . > /dev/null ; then
-  echo "WARNING: differences between outputs from two sources:" >> /tmp/update_collabs_senat.tmp
-  cat /tmp/update_collabs_senat.tmp
+printlog=false
+gitpush=false
+
+total=$((`cat data/liste_deputes_collaborateurs.csv | wc -l` - 1))
+if [ "$total" -lt "500" ]; then
+  echo "WARNING: something weird happened, less than 500 collabs for AN" >> /tmp/update_collabs.tmp
+  echo "stopping here for now..." >> /tmp/update_collabs.tmp
+  printlog=true
+else
+  echo "Everything fine with AN, $total collaborateurs found" >> /tmp/update_collabs.tmp
+  echo >> /tmp/update_collabs.tmp
+  if git status | grep "data/liste.*deputes.*.csv" > /dev/null; then
+    printlog=true
+    echo "commit députés"
+    git commit data/*deputes* pdfmaps/*deputes* pdfs/*deputes* -m "autoupdate députés"
+    gitpush=true
+  fi
+fi
+
+if diff data/liste_*senateurs*.csv | grep . > /dev/null ; then
+  echo "WARNING: differences between Sénat outputs from two sources:" >> /tmp/update_collabs.tmp
+  printlog=true
   diff data/liste_*.csv
-  exit 1
 else
   total=$((`cat data/liste_senateurs_collaborateurs.csv | wc -l` - 1))
   if [ "$total" -lt "300" ]; then
-    echo "WARNING: something weird happened, stopping here for now..." >> /tmp/update_collabs_senat.tmp
-    cat /tmp/update_collabs_senat.tmp
-    exit 1
+    echo "WARNING: something weird happened, less than 300 collabs for Sénat" >> /tmp/update_collabs.tmp
+    echo "stopping here for now..." >> /tmp/update_collabs.tmp
+    printlog=true
+  else
+    echo "Everything fine with Sénat, $total collaborateurs found in both sources" >> /tmp/update_collabs.tmp
+    echo >> /tmp/update_collabs.tmp
+    if git status | grep "data/liste.*senateurs.*.csv" > /dev/null; then
+      printlog=true
+      echo "commit sénateurs"
+      git commit data/*senateurs* pdfmaps/*senateurs* pdfs/*senateurs* -m "autoupdate sénateurs"
+      gitpush=true
+    fi
   fi
-  echo "Everything fine, $total collaborateurs found in both sources" >> /tmp/update_collabs_senat.tmp
 fi
-echo >> /tmp/update_collabs_senat.tmp
 
-if git status | grep "data/liste.*.csv" > /dev/null; then
-  cat /tmp/update_collabs_senat.tmp
-  git commit data pdfmaps pdfs -m "autoupdate"
+if $gitpush; then
   git push
 fi
-
+if $printlog; then
+  cat /tmp/update_collabs.tmp
+fi
