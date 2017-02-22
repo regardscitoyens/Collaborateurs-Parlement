@@ -79,18 +79,23 @@ def split_name(name):
 def split_collab(record):
     record[5], record[6], record[7] = split_name(record[4])
 
+exceptions = [
+    ("deromedi jacqueline", "deromedi jacky"),
+    ("yonnet-salvator evelyne", "yonnet evelyne"),
+    ("laufoaulu lopeleto", "laufoaulu robert"),
+    ("azerot bruno", "azerot bruno nestor"),
+    ("de la verpillere charles", "de la verpilliere charles"),
+    ("debre bernard andre", "debre bernard"),
+    ("destans jean", "destans jean-louis"),
+    ("le borgn pierre-yves", "le borgn' pierre-yves"),
+    ("vlody jean-jacques", "vlody jean jacques"),
+    ("zimmermann marie jo", "zimmermann marie-jo")
+]
+
 def find_parl(record, splitted=False):
     nom = checker(clean_Mme.sub('', record[0]))
-    nom = nom.replace("deromedi jacqueline", "deromedi jacky")
-    nom = nom.replace("yonnet-salvator evelyne", "yonnet evelyne")
-    nom = nom.replace("laufoaulu lopeleto", "laufoaulu robert")
-    nom = nom.replace("azerot bruno", "azerot bruno nestor")
-    nom = nom.replace("de la verpillere charles", "de la verpilliere charles")
-    nom = nom.replace("debre bernard andre", "debre bernard")
-    nom = nom.replace("destans jean", "destans jean-louis")
-    nom = nom.replace("le borgn pierre-yves", "le borgn' pierre-yves")
-    nom = nom.replace("vlody jean-jacques", "vlody jean jacques")
-    nom = nom.replace("zimmermann marie jo", "zimmermann marie-jo")
+    for bad, gd in exceptions:
+        nom = nom.replace(bad, gd)
     if not splitted:
         record[1], record[2], record[3] = split_name(record[0])
     for parl in parls:
@@ -107,8 +112,8 @@ def find_parl(record, splitted=False):
 # Reorder xml lines
 xml_ordered = ""
 page_lines = []
-re_ordline = re.compile(r'<(page|text) (?:top="(\d+)" left="(\d+)"[^>])?', re.I)
-ordline = lambda l: [int(v or 0) if i else v for i, v in enumerate(re_ordline.search(l).groups())]
+re_ordline = re.compile(r'<text top="(\d+)" left="(\d+)"[^>]', re.I)
+ordline = lambda l: [int(v) for v in re_ordline.search(l).groups()]
 for line in (xml).split("\n"):
     if line.startswith('<text'):
         page_lines.append(line)
