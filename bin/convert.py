@@ -125,6 +125,7 @@ headers = ['parlementaire', 'nom_parlementaire', 'prénom_parlementaire', 'sexe_
 record = ["", "", "", "", "", "", "", "", "", ""]
 re_line = re.compile(r'<page number|text top="(\d+)" left="(\d+)"[^>]*font="(\d+)">(.*)</text>', re.I)
 re_tosplit = re.compile(r'^(.*) ((?:M.|Mme) .*)$')
+re_collabtosplit = re.compile(r'^\s*(M\.|Mme) (.+)$')
 sexize = lambda val: "H" if val == "M." else "F"
 for line in (xml_ordered).split("\n"):
     #print >> sys.stderr, "DEBUG %s" % line
@@ -165,7 +166,12 @@ for line in (xml_ordered).split("\n"):
             find_parl(record, splitted=True)
             record[3] = sexize(record[3])
         elif left < l4:
-            record[7] = val
+            splitted = re_collabtosplit.search(val)
+            if splitted:
+                record[7] = splitted.group(1)
+                record[6] = splitted.group(2)
+            else:
+                record[7] = val
         elif left < l5:
             record[6] = val
         else:
