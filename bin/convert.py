@@ -63,7 +63,7 @@ checker = lambda x: clean(clean_accents(x)).lower().strip()
 reorder = lambda p: checker("%s %s" % (p['nom'].replace("%s " % p['prenom'], ""), p['prenom']))
 
 maj = ur"A-ZÀÂÉÈÊËÎÏÔÖÙÛÜÇ"
-particule = r"d[euils'\s]+"
+particule = r"d(?:(?:e l)?'|[iu] |e(?:[ls]| la)? )"
 re_name = re.compile(ur"(%s)((?:(?:%s)?[%s'\-]+\s+)+)([%s][a-zàâéèêëîïôöùûüç].*)$" % (Mme, particule, maj, maj))
 
 def split_name(name):
