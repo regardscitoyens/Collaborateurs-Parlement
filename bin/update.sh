@@ -48,7 +48,7 @@ else
   if git status | grep "data/liste.*deputes.*.csv" > /dev/null; then
     printlog=true
     echo "commit députés"
-    git commit data/*deputes* pdfmaps/*deputes* pdfs/*deputes* -m "autoupdate députés"
+    git commit data/liste*deputes* pdfmaps/*deputes* pdfs/*deputes*.pdf -m "autoupdate députés"
     gitpush=true
   fi
 fi
@@ -69,7 +69,7 @@ else
     if git status | grep "data/liste.*senateurs.*.csv" > /dev/null; then
       printlog=true
       echo "commit sénateurs"
-      git commit data/*senateurs* pdfmaps/*senateurs* pdfs/*senateurs* -m "autoupdate sénateurs"
+      git commit data/liste*senateurs* pdfmaps/*senateurs* pdfs/*senateurs*.pdf -m "autoupdate sénateurs"
       gitpush=true
     fi
   fi
