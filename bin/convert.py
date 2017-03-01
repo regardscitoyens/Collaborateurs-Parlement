@@ -78,6 +78,10 @@ def split_name(name):
 
 def split_collab(record):
     record[5], record[6], record[7] = split_name(record[4])
+    if record[6].endswith("*"):
+        record[6].rstrip(" *")
+        record[10] = "Congé sans solde"
+    else: record[10] = ""
 
 exceptions = [
     ("deromedi jacqueline", "deromedi jacky"),
@@ -126,8 +130,8 @@ leftvals = {}
 maxtop = 0
 maxleft = 0
 results = []
-headers = ['parlementaire', 'nom_parlementaire', 'prénom_parlementaire', 'sexe_parlementaire', 'collaborateur', 'nom_collaborateur', 'prénom_collaborateur', 'sexe_collaborateur', 'url_api_RC', 'url_institution']
-record = ["", "", "", "", "", "", "", "", "", ""]
+headers = ['parlementaire', 'nom_parlementaire', 'prénom_parlementaire', 'sexe_parlementaire', 'collaborateur', 'nom_collaborateur', 'prénom_collaborateur', 'sexe_collaborateur', 'url_api_RC', 'url_institution', 'information complémentaire']
+record = ["", "", "", "", "", "", "", "", "", "", ""]
 re_line = re.compile(r'<page number|text top="(\d+)" left="(\d+)"[^>]*font="(\d+)">(.*)</text>', re.I)
 re_tosplit = re.compile(r'^(.*) ((?:M.|Mme) .*)$')
 re_collabtosplit = re.compile(r'^\s*(M\.|Mme) (.+)$')
