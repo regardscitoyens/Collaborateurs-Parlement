@@ -56,7 +56,7 @@ fi
 if diff data/liste_*senateurs*.csv | grep . > /dev/null ; then
   echo "WARNING: differences between Sénat outputs from two sources:" >> /tmp/update_collabs.tmp
   printlog=true
-  diff data/liste_*.csv
+  diff data/liste_*senateurs*.csv
 else
   total=$((`cat data/liste_senateurs_collaborateurs.csv | wc -l` - 1))
   if [ "$total" -lt "300" ]; then
