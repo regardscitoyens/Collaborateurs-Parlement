@@ -47,16 +47,17 @@ else
   echo >> /tmp/update_collabs.tmp
   if git status | grep "data/liste.*deputes.*.csv" > /dev/null; then
     printlog=true
-    echo "commit députés"
     git commit data/liste*deputes* pdfmaps/*deputes* pdfs/*deputes*.pdf -m "autoupdate députés"
     gitpush=true
   fi
 fi
 
-if diff data/liste_*senateurs*.csv | grep . > /dev/null ; then
+missing='> "Michèle André","ANDRÉ","Michèle","F","Mme ROBERT Céline","ROBERT","Céline","F"'
+
+if diff data/liste_*senateurs*.csv | grep -v "$missing" | grep "^[<>]" > /dev/null ; then
   echo "WARNING: differences between Sénat outputs from two sources:" >> /tmp/update_collabs.tmp
+  diff data/liste_*senateurs*.csv >> /tmp/update_collabs.tmp
   printlog=true
-  diff data/liste_*senateurs*.csv
 else
   total=$((`cat data/liste_senateurs_collaborateurs.csv | wc -l` - 1))
   if [ "$total" -lt "300" ]; then
@@ -68,7 +69,6 @@ else
     echo >> /tmp/update_collabs.tmp
     if git status | grep "data/liste.*senateurs.*.csv" > /dev/null; then
       printlog=true
-      echo "commit sénateurs"
       git commit data/liste*senateurs* pdfmaps/*senateurs* pdfs/*senateurs*.pdf -m "autoupdate sénateurs"
       gitpush=true
     fi
