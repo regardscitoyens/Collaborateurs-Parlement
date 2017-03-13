@@ -24,7 +24,7 @@ elif "collaborateurs_senateurs" in filepath:
 elif "deputes_collaborateurs" in filepath:
     parls_type = "deputes"
     minl = 50
-    mint = 85
+    mint = 220
     maxt = 800
     l1 = 75
     l2 = 150
