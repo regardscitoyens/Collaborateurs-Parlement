@@ -56,7 +56,7 @@ else
   echo >> /tmp/update_collabs.tmp
   if git status | grep "data/liste.*deputes.*.csv" > /dev/null; then
     printlog=true
-    git commit data/liste*deputes* pdfmaps/*deputes* pdfs/*deputes*.pdf -m "autoupdate députés"
+    git commit data/liste*deputes* pdfmaps/*deputes* pdfs/*deputes*.pdf -m "autoupdate députés" >> /tmp/update_collabs.tmp
     gitpush=true
   fi
 fi
@@ -78,14 +78,14 @@ else
     echo >> /tmp/update_collabs.tmp
     if git status | grep "data/liste.*senateurs.*.csv" > /dev/null; then
       printlog=true
-      git commit data/liste*senateurs* pdfmaps/*senateurs* pdfs/*senateurs*.pdf -m "autoupdate sénateurs"
+      git commit data/liste*senateurs* pdfmaps/*senateurs* pdfs/*senateurs*.pdf -m "autoupdate sénateurs" >> /tmp/update_collabs.tmp
       gitpush=true
     fi
   fi
 fi
 
 if $gitpush; then
-  git push
+  git push >> /tmp/update_collabs.tmp
 fi
 if $printlog; then
   cat /tmp/update_collabs.tmp
