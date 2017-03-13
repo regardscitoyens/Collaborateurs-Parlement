@@ -4,13 +4,22 @@ CACHE=$1
 cd $(echo $0 | sed 's#/[^/]*$##')/..
 mkdir -p pdfs pdfmaps data
 
+function download_json {
+  curl -sL "$1" > "$2.tmp"
+  if python -m json.tool "$2.tmp" > /dev/null; then
+    mv "$2"{.tmp,}
+  else
+    rm -f "$2.tmp"
+  fi
+}
+
 if [ -z "$CACHE" ]; then
   echo "Downloading sources..." > /tmp/update_collabs.tmp
   echo "--------------------------" >> /tmp/update_collabs.tmp
-  wget -q "http://www.nossenateurs.fr/senateurs/json" -O data/senateurs.json
+  download_json http://www.nossenateurs.fr/senateurs/json data/senateurs.json
   wget -q "http://www.senat.fr/pubagas/liste_senateurs_collaborateurs.pdf" -O pdfs/liste_senateurs_collaborateurs.pdf
   wget -q "http://www.senat.fr/pubagas/liste_collaborateurs_senateurs2.pdf" -O pdfs/liste_collaborateurs_senateurs2.pdf
-  wget -q "http://www.nosdeputes.fr/deputes/json" -O data/deputes.json
+  download_json http://www.nosdeputes.fr/deputes/json data/deputes.json
   wget -q "http://www2.assemblee-nationale.fr/static/collaborateurs/liste_deputes_collaborateurs.pdf" -O pdfs/liste_deputes_collaborateurs.pdf
   echo >> /tmp/update_collabs.tmp
 fi
