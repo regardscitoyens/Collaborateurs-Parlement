@@ -61,11 +61,11 @@ else
   fi
 fi
 
-missing='> "Michèle André","ANDRÉ","Michèle","F","Mme ROBERT Céline","ROBERT","Céline","F"\|> "Alain Joyandet","JOYANDET","Alain","H","Mme PERIN Marie-Line","PERIN","Marie-Line","F"\|> "Brigitte Micouleau","MICOULEAU","Brigitte","F","Mme AZZOPARDI Anne-Sophie","AZZOPARDI","Anne-Sophie","F"'
+missing='> "\(Pierre Camani","CAMANI","Pierre","H","Mme DUTEY Danièle\|Jacques Chiron","CHIRON","Jacques","H","Mme GERMAIN Amandine\|Alain Joyandet","JOYANDET","Alain","H","Mme PERIN Marie-Line\|Brigitte Micouleau","MICOULEAU","Brigitte","F","Mme AZZOPARDI Anne-Sophie\|Alain Néri","NÉRI","Alain","H","Mme NERI DA SILVA BORGES Anaïs\|Jean-François Rapin","RAPIN","Jean-François","H","Mme LIMONIER Elise\)"'
 
 if diff data/liste_*senateurs*.csv | grep -v "$missing" | grep "^[<>]" > /dev/null ; then
   echo "WARNING: differences between Sénat outputs from two sources:" >> /tmp/update_collabs.tmp
-  diff data/liste_*senateurs*.csv >> /tmp/update_collabs.tmp
+  diff data/liste_*senateurs*.csv | grep "^[<>]" >> /tmp/update_collabs.tmp
   printlog=true
 else
   total=$((`cat data/liste_senateurs_collaborateurs.csv | wc -l` - 1))
