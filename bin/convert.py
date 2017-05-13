@@ -90,9 +90,10 @@ exceptions = [
     ("azerot bruno", "azerot bruno nestor"),
     ("de la verpillere charles", "de la verpilliere charles"),
     ("debre bernard andre", "debre bernard"),
-    ("destans jean", "destans jean-louis"),
     ("le borgn pierre-yves", "le borgn' pierre-yves"),
     ("vlody jean-jacques", "vlody jean jacques"),
+    ("destans jean louis", "destans jean-louis"),
+    ("goasgen claude", "goasguen claude"),
     ("zimmermann marie jo", "zimmermann marie-jo")
 ]
 
@@ -138,6 +139,7 @@ re_collabtosplit = re.compile(r'^\s*(M\.|Mme) (.+)$')
 sexize = lambda val: "H" if val == "M." else "F"
 for line in (xml_ordered).split("\n"):
     #print >> sys.stderr, "DEBUG %s" % line
+    line = line.replace(" ", " ")
     attrs = re_line.search(line)
     if not attrs or not attrs.groups():
         raise Exception("WARNING : line detected with good font but wrong format %s" % line)
@@ -166,7 +168,7 @@ for line in (xml_ordered).split("\n"):
     if parls_type == "deputes":
         val = clean(text)
         if left < l1:
-            record[3] = val
+            record[3] = val.replace(" .", ".")
         elif left < l2:
             record[2] = val
         elif left < l3:
@@ -180,7 +182,7 @@ for line in (xml_ordered).split("\n"):
                 record[7] = splitted.group(1)
                 record[6] = splitted.group(2)
             else:
-                record[7] = val
+                record[7] = val.replace(" .", ".")
         elif left < l5:
             record[6] = val
         else:
