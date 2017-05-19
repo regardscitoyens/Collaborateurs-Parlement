@@ -77,11 +77,11 @@ def split_name(name):
     return nom, prenom, sexe
 
 def split_collab(record):
-    record[5], record[6], record[7] = split_name(record[4])
-    if record[6].endswith("*"):
-        record[6].rstrip(" *")
+    if record[4].endswith("*"):
+        record[4] = record[4].rstrip(" *")
         record[10] = "Congé sans solde"
     else: record[10] = ""
+    record[5], record[6], record[7] = split_name(record[4])
 
 exceptions = [
     ("deromedi jacqueline", "deromedi jacky"),
