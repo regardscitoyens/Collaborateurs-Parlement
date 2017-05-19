@@ -61,7 +61,7 @@ else
   fi
 fi
 
-missing='"\(ANDRÉ","Michèle","F","Mme VIDALENC Marlène\|DURANTON","Nicole","F","Mme de HUBSCH Diane\)"'
+missing='"\(MARIE","Didier","H","Mme PENALVER Aline\)"'
 
 if diff data/liste_*senateurs*.csv | grep -v "$missing" | grep "^[<>]" > /dev/null ; then
   echo "WARNING: differences between Sénat outputs from two sources:" >> /tmp/update_collabs.tmp
