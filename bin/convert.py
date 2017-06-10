@@ -118,7 +118,14 @@ def find_parl(record, splitted=False):
 xml_ordered = ""
 page_lines = []
 re_ordline = re.compile(r'<text top="(\d+)" left="(\d+)"[^>]', re.I)
-ordline = lambda l: [int(v) for v in re_ordline.search(l).groups()]
+def ordline(l):
+    y, x = re_ordline.search(l).groups()
+    y = int(y)
+    x = int(x)
+    if parls_type == "deputes" and x < l3:
+        y -= 3
+    return (y, x)
+
 for line in (xml).split("\n"):
     if line.startswith('<text'):
         page_lines.append(line)
