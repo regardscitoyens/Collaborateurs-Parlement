@@ -11,6 +11,7 @@ Pour pouvoir mieux permettre à chacun d'accéder à ces données voire de les r
 Vous pouvez télécharger les données directement sur ces liens (fichiers tableur CSV UTF-8):
 - [Sénat](https://github.com/regardscitoyens/Collaborateurs-Parlement/raw/master/data/liste_senateurs_collaborateurs.csv)
 - [Assemblée nationale](https://github.com/regardscitoyens/Collaborateurs-Parlement/raw/master/data/liste_deputes_collaborateurs.csv)
+- [Assemblée nationale (14ème législature)](https://github.com/regardscitoyens/Collaborateurs-Parlement/raw/master/data/liste_deputes_collaborateurs_2012-2017.csv)
 
 [Regards Citoyens](http://www.regardscitoyens.org)
 
