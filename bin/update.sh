@@ -20,14 +20,14 @@ if [ -z "$CACHE" ]; then
   wget -q "http://www.senat.fr/pubagas/liste_senateurs_collaborateurs.pdf" -O pdfs/liste_senateurs_collaborateurs.pdf
   wget -q "http://www.senat.fr/pubagas/liste_collaborateurs_senateurs2.pdf" -O pdfs/liste_collaborateurs_senateurs2.pdf
   download_json http://www.nosdeputes.fr/deputes/json data/deputes.json
-  wget -q "http://www2.assemblee-nationale.fr/static/collaborateurs/liste_deputes_collaborateurs.pdf" -O pdfs/liste_deputes_collaborateurs.pdf
+#  wget -q "http://www2.assemblee-nationale.fr/static/collaborateurs/liste_deputes_collaborateurs.pdf" -O pdfs/liste_deputes_collaborateurs.pdf
   echo >> /tmp/update_collabs.tmp
 fi
 
 source /usr/local/bin/virtualenvwrapper.sh
 workon collabs
 
-for pdffile in pdfs/*deputes*.pdf pdfs/*senateurs*.pdf; do
+for pdffile in pdfs/*senateurs*.pdf; do
   echo "Processing $pdffile..." >> /tmp/update_collabs.tmp
   echo "--------------------------" >> /tmp/update_collabs.tmp
   pdftohtml -xml "$pdffile" > /dev/null 2>> /tmp/update_collabs.tmp
@@ -38,6 +38,11 @@ for pdffile in pdfs/*deputes*.pdf pdfs/*senateurs*.pdf; do
   ./bin/convert.py "$xmlfile" > "$csvfile" 2>> /tmp/update_collabs.tmp
   echo >> /tmp/update_collabs.tmp
 done
+
+echo "Processing députés..." >> /tmp/update_collabs.tmp
+echo "---------------------------" >> /tmp/update_collabs.tmp
+./bin/read_collabs_deputes.py > data/liste_deputes_collaborateurs.csv 2>> /tmp/update_collabs.tmp
+echo >> /tmp/update_collabs.tmp
 
 echo "Testing resulting CSVs..." >> /tmp/update_collabs.tmp
 echo "----------------------------" >> /tmp/update_collabs.tmp
@@ -54,9 +59,9 @@ if [ "$total" -lt "500" ]; then
 else
   echo "Everything fine with AN, $total collaborateurs found" >> /tmp/update_collabs.tmp
   echo >> /tmp/update_collabs.tmp
-  if git status | grep "data/liste.*deputes.*.csv" > /dev/null; then
+  if git status | grep "data/liste_deputes_collaborateurs.csv" > /dev/null; then
     printlog=true
-    git commit data/liste*deputes* pdfmaps/*deputes* pdfs/*deputes*.pdf -m "autoupdate députés" >> /tmp/update_collabs.tmp
+    git commit data/liste_deputes_collaborateurs.csv -m "autoupdate députés" >> /tmp/update_collabs.tmp
     gitpush=true
   fi
 fi
