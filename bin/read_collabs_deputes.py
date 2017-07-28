@@ -33,10 +33,10 @@ for d in parls:
         carr = lowerize(record[4]).split(" ")
         if carr[2] in prenomscomposes:
             record[5] = " ".join(carr[3:])
-            record[6] = " ".join(carr[1:2])
+            record[6] = " ".join(carr[1:3])
         else:
-            record[5] = carr[1]
-            record[6] = " ".join(carr[2:])
+            record[5] = " ".join(carr[2:])
+            record[6] = carr[1]
         record[7] = "H" if carr[0] == "M." else "F"
         record[10] = ""
         results.append(list(record))
