@@ -107,13 +107,8 @@ function loadData(typeParl){
   });
 
   d3.csv("data/liste_"+typeParl+"_collaborateurs.csv", function(data){
-    console.log(data);
-    var dataTable = data.map(function(d){
-      return [d.parlementaire, d.collaborateur];
-    });
-    window[typeParl] = dataTable;
     $("#"+typeParl+" table").DataTable({
-      data: dataTable,
+      data: data.map(function(d){ return [d.parlementaire, d.collaborateur]; }),
       columns: [
         {title: "Parlementaire"},
         {title: "Collaborateur"}
