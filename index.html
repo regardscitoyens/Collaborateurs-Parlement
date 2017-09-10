@@ -39,7 +39,7 @@ d3.timeFormat = d3.timeFormatLocale({
   "shortMonths": ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."]
 }).format;
 function drawLineChart(typeParl) {
-  d3.csv("/data/liste_"+typeParl+"_collaborateurs-totaux.csv", function(data){
+  d3.csv("data/liste_"+typeParl+"_collaborateurs-totaux.csv", function(data){
     var height = 150,
       width = 590,
       svg = d3.select("#graph-"+typeParl)
