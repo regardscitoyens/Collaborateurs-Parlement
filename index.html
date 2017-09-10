@@ -1,0 +1,77 @@
+<html>
+<head>
+ <meta charset="UTF-8">
+ <title>Évolution temporelle du total de collaborateurs parlementaires déclarés dans chaque Assemblée - Regards Citoyens</title>
+ <script src="js/d3.js"></script>
+ <style>
+body {
+  margin:auto;
+}
+.curve {
+  fill:none;
+  stroke:steelblue;
+  stroke-width:1.5px;
+}
+#xaxis , #yaxis  {
+  opacity:0.5;
+}
+ </style>
+</head>
+<body>
+ <center>
+  <h1>Évolution du nombre de collaborateurs déclarés dans chaque Assemblée</h1>
+  <p>par <a href="https://RegardsCitoyens.org">Regards Citoyens</a></p>
+  <h2>À l'Assemblée nationale</h2>
+  <svg id="graph-deputes"></div>
+  <h2>Au Sénat</h2>
+  <svg id="graph-senateurs"></div>
+ </center>
+</body>
+<script type="text/javascript">
+d3.timeFormat = d3.timeFormatLocale({
+  "dateTime": "%A, le %e %B %Y, %X",
+  "date": "%d/%m/%Y",
+  "time": "%H:%M:%S",
+  "periods": ["AM", "PM"],
+  "days": ["dimanche", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "samedi"],
+  "shortDays": ["dim.", "lun.", "mar.", "mer.", "jeu.", "ven.", "sam."],
+  "months": ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
+  "shortMonths": ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."]
+}).format;
+function drawLineChart(typeParl) {
+  d3.csv("/data/liste_"+typeParl+"_collaborateurs-totaux.csv", function(data){
+    var height = 150,
+      width = 590,
+      svg = d3.select("#graph-"+typeParl)
+        .style("width", width)
+        .style("height", height),
+      xscale = d3.scaleLinear()
+        .domain([new Date(data[0].date), new Date()])
+        .range([20, width-55]),
+      yscale = d3.scaleLinear()
+        .domain([0, d3.max(data.map(function(x){ return parseInt(x.total_collabs); }))])
+        .range([height-25, 0]);
+  
+    svg.append("path")
+      .attr("id", "total_collabs_"+typeParl)
+      .attr("class", "curve")
+  	  .attr("d", d3.line()
+        .x(function(x){ return xscale(new Date(x.date)); })
+        .y(function(x){ return yscale(parseInt(x.total_collabs)); })(data)
+      );
+  
+    svg.append("g")
+  	.attr("id", "yaxis")
+  	.attr("transform", "translate("+(width-50)+",0)")
+  	.call(d3.axisRight(yscale).ticks(4).tickFormat(d3.format(".0r")));
+  
+    svg.append("g")
+  	.attr("id", "xaxis")
+  	.attr("transform", "translate(0,"+(height-20)+")")
+  	.call(d3.axisBottom(xscale).ticks(8).tickFormat(d3.timeFormat("%y-%b")));
+  });
+}
+drawLineChart("deputes");
+drawLineChart("senateurs");
+</script>
+</html>
