@@ -2,36 +2,64 @@
 <head>
  <meta charset="UTF-8">
  <title>Évolution temporelle du total de collaborateurs parlementaires déclarés dans chaque Assemblée - Regards Citoyens</title>
- <script src="js/d3.js"></script>
+ <link rel="stylesheet" type="text/css" href="js/datatables.min.css"/>
+ <script type="text/javascript" src="js/jquery.min.js"></script>
+ <script type="text/javascript" src="js/datatables.min.js"></script>
+ <script type="text/javascript" src="js/d3.js"></script>
  <style>
 body {
-  margin:auto;
+  margin: auto;
+}
+h1, p {
+  margin: 0 8px;
+}
+.chambre {
+  display: inline-block;
+  width: 45%;
+  margin: 0 2%;
+}
+svg {
+  margin-bottom: 20px;
 }
 .curve {
-  fill: steelblue;
   fill-opacity: 0.6;
-  stroke: steelblue;
   stroke-width: 1px;
 }
-.tooltip {
-  fill: none;
-  z-index: 10;
+#deputes .curve {
+  fill: steelblue;
+  stroke: steelblue;
 }
-#xaxis , #yaxis  {
-  opacity:0.5;
+#senateurs .curve {
+  fill: indianred;
+  stroke: indianred;
+}
+#xaxis, #yaxis {
+  opacity: 0.5;
+}
+table {
+  width: 500px;
+  text-align: center;
 }
  </style>
 </head>
+
 <body>
  <center>
-  <h1>Évolution du nombre de collaborateurs déclarés dans chaque Assemblée</h1>
-  <p>par <a href="https://RegardsCitoyens.org">Regards Citoyens</a></p>
-  <h2>À l'Assemblée nationale</h2>
-  <svg id="graph-deputes"></svg>
-  <h2>Au Sénat</h2>
-  <svg id="graph-senateurs"></svg>
+  <h1>Collaborateurs parlementaires déclarés dans chaque Assemblée</h1>
+  <p>par <a href="https://RegardsCitoyens.org">Regards Citoyens</a> &mdash; <a href="https://github.com/regardscitoyens/Collaborateurs-Parlement">télécharger les données</a></p>
+  <div id="deputes" class="chambre">
+   <h2>À l'Assemblée nationale</h2>
+   <svg></svg>
+   <table></table>
+  </div>
+  <div id="senateurs" class="chambre">
+   <h2>Au Sénat</h2>
+   <svg></svg>
+   <table></table>
+  </div>
  </center>
 </body>
+
 <script type="text/javascript">
 d3.timeFormat = d3.timeFormatLocale({
   "dateTime": "%A, le %e %B %Y, %X",
@@ -43,11 +71,11 @@ d3.timeFormat = d3.timeFormatLocale({
   "months": ["janvier", "février", "mars", "avril", "mai", "juin", "juillet", "août", "septembre", "octobre", "novembre", "décembre"],
   "shortMonths": ["janv.", "févr.", "mars", "avr.", "mai", "juin", "juil.", "août", "sept.", "oct.", "nov.", "déc."]
 }).format;
-function drawLineChart(typeParl) {
+function loadData(typeParl){
   d3.csv("data/liste_"+typeParl+"_collaborateurs-totaux.csv", function(data){
     var height = 150,
-      width = 590,
-      svg = d3.select("#graph-"+typeParl)
+      width = 500,
+      svg = d3.select("#"+typeParl+" svg")
         .style("width", width)
         .style("height", height),
       xscale = d3.scaleLinear()
@@ -77,8 +105,30 @@ function drawLineChart(typeParl) {
       .attr("transform", "translate("+(width-50)+",0)")
       .call(d3.axisRight(yscale).ticks(4));
   });
+
+  d3.csv("data/liste_"+typeParl+"_collaborateurs.csv", function(data){
+    console.log(data);
+    var dataTable = data.map(function(d){
+      return [d.parlementaire, d.collaborateur];
+    });
+    window[typeParl] = dataTable;
+    $("#"+typeParl+" table").DataTable({
+      data: dataTable,
+      columns: [
+        {title: "Parlementaire"},
+        {title: "Collaborateur"}
+      ],
+      autoWidth: false,
+      scrollX: 500,
+      pageLength: 15,
+      pagingType: "full",
+      lengthChange: false,
+    });
+  });
 }
-drawLineChart("deputes");
-drawLineChart("senateurs");
+$(document).ready(function() {
+  loadData("deputes");
+  loadData("senateurs");
+});
 </script>
 </html>
