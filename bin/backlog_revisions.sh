@@ -5,16 +5,19 @@ badcommits="\(bcb0b8de41ba7223fc12fd66f8b66b8b7b462be1\|7582589cc4b7c656489f5060
 for typ in depute senateur; do
   fil="data/liste_${typ}s_collaborateurs.csv"
   ofil=$(echo $fil | sed 's/\.csv/-totaux\.csv/')
-  echo "date,commit,total_collabs" > $ofil
+  echo "date,commit,total_collabs" > $ofil.tmp
   git log --date-order --pretty=format:"%ci %H" $fil    |
     grep -v "$badcommits"                               |
     sort                                                |
     while read commit; do
       dat=$(echo $commit | awk '{print $1}')
       cid=$(echo $commit | awk '{print $4}')
-      git checkout $cid# 2> /dev/null
+      git checkout $cid > /dev/null 2>&1
       lines=$(cat $fil | grep -v '^"parlementaire' | wc -l)
       echo "$dat,$cid,$lines"
-    done | uniq --check-chars=10 >> $ofil
-  git checkout master# > /dev/null 2>&1
+    done | uniq --check-chars=10 >> $ofil.tmp
+  git checkout master > /dev/null 2>&1
+done
+for typ in depute senateur; do
+  mv data/liste_${typ}s_collaborateurs-totaux.csv{.tmp,}
 done
