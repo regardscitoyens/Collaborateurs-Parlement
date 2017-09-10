@@ -8,9 +8,14 @@ body {
   margin:auto;
 }
 .curve {
-  fill:none;
-  stroke:steelblue;
-  stroke-width:1.5px;
+  fill: steelblue;
+  fill-opacity: 0.6;
+  stroke: steelblue;
+  stroke-width: 1px;
+}
+.tooltip {
+  fill: none;
+  z-index: 10;
 }
 #xaxis , #yaxis  {
   opacity:0.5;
@@ -22,9 +27,9 @@ body {
   <h1>Évolution du nombre de collaborateurs déclarés dans chaque Assemblée</h1>
   <p>par <a href="https://RegardsCitoyens.org">Regards Citoyens</a></p>
   <h2>À l'Assemblée nationale</h2>
-  <svg id="graph-deputes"></div>
+  <svg id="graph-deputes"></svg>
   <h2>Au Sénat</h2>
-  <svg id="graph-senateurs"></div>
+  <svg id="graph-senateurs"></svg>
  </center>
 </body>
 <script type="text/javascript">
@@ -55,20 +60,22 @@ function drawLineChart(typeParl) {
     svg.append("path")
       .attr("id", "total_collabs_"+typeParl)
       .attr("class", "curve")
-  	  .attr("d", d3.line()
+      .attr("d", d3.area()
+        .curve(d3.curveStepAfter)
         .x(function(x){ return xscale(new Date(x.date)); })
-        .y(function(x){ return yscale(parseInt(x.total_collabs)); })(data)
+        .y1(function(x){ return yscale(parseInt(x.total_collabs)); })
+        .y0(yscale(0))
+        (data)
       );
-  
+
     svg.append("g")
-  	.attr("id", "yaxis")
-  	.attr("transform", "translate("+(width-50)+",0)")
-  	.call(d3.axisRight(yscale).ticks(4).tickFormat(d3.format(".0r")));
-  
+      .attr("id", "xaxis")
+      .attr("transform", "translate(0,"+(height-20)+")")
+      .call(d3.axisBottom(xscale).ticks(8).tickFormat(d3.timeFormat("%b %y")));
     svg.append("g")
-  	.attr("id", "xaxis")
-  	.attr("transform", "translate(0,"+(height-20)+")")
-  	.call(d3.axisBottom(xscale).ticks(8).tickFormat(d3.timeFormat("%y-%b")));
+      .attr("id", "yaxis")
+      .attr("transform", "translate("+(width-50)+",0)")
+      .call(d3.axisRight(yscale).ticks(4));
   });
 }
 drawLineChart("deputes");
