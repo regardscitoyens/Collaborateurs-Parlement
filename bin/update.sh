@@ -66,7 +66,7 @@ else
   fi
 fi
 
-if diff data/liste_senateurs_collaborateurs.csv data/liste_collaborateurs_senateurs2.csv | grep "^<" > /dev/null ; then
+if diff data/liste_senateurs_collaborateurs.csv data/liste_collaborateurs_senateurs2.csv | grep "^>" > /dev/null ; then
   echo "WARNING: differences between Sénat outputs from two sources:" >> /tmp/update_collabs.tmp
   diff data/liste_senateurs_collaborateurs.csv data/liste_collaborateurs_senateurs2.csv | grep "^[<>]" >> /tmp/update_collabs.tmp
   printlog=true
