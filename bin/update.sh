@@ -89,7 +89,7 @@ fi
 
 if $gitpush; then
   bin/backlog_revisions.sh
-  if git status | grep "data/liste*-totaux.csv" > /dev/null; then
+  if git status | grep "data/liste.*-totaux.csv" > /dev/null; then
     git commit data/liste*-totaux.csv -m "update totaux" >> /tmp/update_collabs.tmp
   fi
   git push >> /tmp/update_collabs.tmp
