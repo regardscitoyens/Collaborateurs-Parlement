@@ -9,6 +9,10 @@ from dateutil.parser import parse
 from collections import defaultdict
 
 csv_modif = csv.reader(open(sys.argv[1]))
+date_now = ""
+if len(sys.argv) > 1:
+	date_now = sys.argv[2]
+
 header = next(csv_modif)
 csv_output = csv.writer(open("data/turnover.csv", 'w'))
 newheaders = header[1:11] + ["entree", "sortie", "nombredejours"]
@@ -18,6 +22,8 @@ collab = defaultdict(dict)
 def writecollab(unecollab):
 	parsed_entree = parse(unecollab["entree"])
 	nbdejours = ""
+	if unecollab["sortie"] == "" and date_now:
+		unecollab["sortie"] = date_now
 	if unecollab["sortie"] != "":
 		parsed_sortie = parse(unecollab["sortie"])
 		nbdejours = parsed_sortie - parsed_entree
