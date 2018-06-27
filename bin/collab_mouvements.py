@@ -38,7 +38,8 @@ for modif in csv_modif:
 		csv_output.writerow(newline)
 		collab.pop(couple, None)
 
+for couple in collab:
+	newline = collab[couple]["raw_data"] + [collab[couple]["entree"], collab[couple]["sortie"]]
+	csv_output.writerow(newline)
 
-
-	# print(collab[couple])
 
