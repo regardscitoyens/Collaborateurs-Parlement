@@ -22,8 +22,14 @@ for modif in csv_modif:
 		collab[couple]["sortie"] = ""
 
 	if modif[0] == "AJOUT":
+		if collab[couple]["entree"] != "":
+			print("ERROR: Réembauche d'un collab déjà en poste")
+			print(modif)
 		collab[couple]["entree"] = modif[12]
 	elif modif[0] == "SUPPRESSION":
+		if collab[couple]["sortie"] != "":
+			print("ERROR: Fin d'un contrat jamais commencé")
+			print(modif)
 		collab[couple]["sortie"] = modif[12]
 		# print(collab[couple]["sortie"])
 		newline = collab[couple]["raw_data"] + [collab[couple]["entree"], collab[couple]["sortie"]]
