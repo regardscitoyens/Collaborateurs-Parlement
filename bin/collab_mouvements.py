@@ -71,10 +71,6 @@ for couple in couple_contrats:
 		for i  in range(len(couple_contrats[couple]) - 1, 0, -1):
 			datediff = parse(couple_contrats[couple][i]["entree"]) - parse(couple_contrats[couple][i-1]["sortie"])
 			if (datediff.total_seconds()/60/60/24 < 7):
-				print (parse(couple_contrats[couple][i]["entree"]))
-				print (parse(couple_contrats[couple][i-1]["sortie"]))
-				print ("merged !!")
-
 				couple_contrats[couple][i-1]["sortie"] = couple_contrats[couple][i]["sortie"]
 				couple_contrats[couple][i]["deleted"] = True
 for couple in couple_contrats:
