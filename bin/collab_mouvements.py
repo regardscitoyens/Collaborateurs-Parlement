@@ -31,7 +31,9 @@ for modif in csv_modif:
 			print("ERROR: Fin d'un contrat jamais commencé")
 			print(modif)
 		collab[couple]["sortie"] = modif[12]
-		# print(collab[couple]["sortie"])
+
+		# À chaque fin de contrat, l'information est versée dans un .csv de façon à s'assurer que 
+		# les données ne soient pas écrasée en cas de réembauche du collab par le même parlementaire
 		newline = collab[couple]["raw_data"] + [collab[couple]["entree"], collab[couple]["sortie"]]
 		csv_output.writerow(newline)
 		collab.pop(couple, None)
