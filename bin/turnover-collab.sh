@@ -13,10 +13,10 @@ tac data/turnover-collab.commits.csv.tmp | while read COMMIT ; do
 done >> data/turnover-collab.ajoutsuppression.csv.tmp
 
 if ! test -f data/deputes.csv.tmp ; then
-	curl https://www.nosdeputes.fr/deputes/csv | sed 's|/csv;|/xml;|' | sed 's/;/,"/' | sed 's/;/","/g' | sed 's/,"*/,"/g' | sed 's/"*,/",/g' > data/deputes.csv.tmp
+	curl -s https://www.nosdeputes.fr/deputes/csv | sed 's|/csv;|/xml;|' | csvformat -d ';' > data/deputes.csv.tmp
 fi
 
-sed -i '' 's/"url_api_RC"/"url_nosdeputes_api"/' data/turnover-collab.ajoutsuppression.csv.tmp
-csvjoin -c url_nosdeputes_api data/turnover-collab.ajoutsuppression.csv.tmp data/deputes.csv.tmp  > data/turnover-collab.ajoutsuppression-more.csv.tmp 2> /dev/null 
+sed 's/"url_api_RC"/"url_nosdeputes_api"/' data/turnover-collab.ajoutsuppression.csv.tmp > data/turnover-collab.ajoutsuppression2.csv.tmp
+csvjoin --datetime-format "%m/%d/%Y %I:%M %p" -c url_nosdeputes_api data/turnover-collab.ajoutsuppression2.csv.tmp data/deputes.csv.tmp  > data/turnover-collab.ajoutsuppression-more.csv.tmp 2> /dev/null 
 
 python bin/collab_mouvements.py data/turnover-collab.ajoutsuppression-more.csv.tmp "2018-06-29 00:00:00 +0200"

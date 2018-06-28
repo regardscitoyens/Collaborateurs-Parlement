@@ -15,7 +15,7 @@ if len(sys.argv) > 1:
 
 header = next(csv_modif)
 csv_output = csv.writer(open("data/turnover.csv", 'w'))
-newheaders = header[1:11] + ["entree", "sortie", "nombredejours"]
+newheaders = header[1:42] + ["entree", "sortie", "nombredejours"]
 csv_output.writerow(newheaders)
 collab = defaultdict(dict)
 
@@ -41,7 +41,7 @@ for modif in csv_modif:
 	parlementaire = modif[1]
 	collaborateur = modif[5]
 	couple = (parlementaire, collaborateur)
-	rawdata = modif[1:11]
+	rawdata = modif[1:42]
 
 	if couple not in collab:
 		collab[couple]["raw_data"] = rawdata
