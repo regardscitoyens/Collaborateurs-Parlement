@@ -12,4 +12,4 @@ tac data/turnover-collab.commits.csv.tmp | while read COMMIT ; do
 	PREVIOUSCOMMIT=$COMMIT 
 done >> data/turnover-collab.ajoutsuppression.csv.tmp
 
-python bin/collab_mouvements.py data/turnover-collab.ajoutsuppression.csv.tmp
+python bin/collab_mouvements.py data/turnover-collab.ajoutsuppression.csv.tmp "2018-06-29 00:00:00 +0200"
