@@ -16,7 +16,7 @@ if ! test -f data/deputes.csv.tmp ; then
 	curl -s https://www.nosdeputes.fr/deputes/csv | sed 's|/csv;|/xml;|' | csvformat -d ';' > data/deputes.csv.tmp
 fi
 
-sed 's/"url_api_RC"/"url_nosdeputes_api"/' data/turnover-collab.ajoutsuppression.csv.tmp > data/turnover-collab.ajoutsuppression2.csv.tmp
+sed 's/"url_api_RC"/"url_nosdeputes_api"/' data/turnover-collab.ajoutsuppression.csv.tmp | sed 's/xef/ï/g' | sed 's/xe8/è/g' | sed 's/xe9/é/g' | sed 's/xe7/ç/g' | sed 's/xeb/ë/g' | sed 's/xee/î/g' | sed 's/xe3/ã/g' > data/turnover-collab.ajoutsuppression2.csv.tmp
 csvjoin --datetime-format "%m/%d/%Y %I:%M %p" -c url_nosdeputes_api data/turnover-collab.ajoutsuppression2.csv.tmp data/deputes.csv.tmp  > data/turnover-collab.ajoutsuppression-more.csv.tmp 2> /dev/null 
 
 python bin/collab_mouvements.py data/turnover-collab.ajoutsuppression-more.csv.tmp "2018-06-29 00:00:00 +0200"
