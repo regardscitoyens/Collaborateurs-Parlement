@@ -36,8 +36,8 @@ couple_contrats = defaultdict(list)
 def validcollab(couple):
 	couple_contrats[couple].append(collab[couple])
 
-
 for modif in csv_modif:
+	modif[1] = modif[14]
 	parlementaire = modif[1]
 	collaborateur = modif[5]
 	couple = (parlementaire, collaborateur)
