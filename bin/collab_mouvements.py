@@ -45,7 +45,7 @@ def validcollab(couple):
 for modif in csv_modif:
 	modif[1] = modif[14]
 	parlementaire = modif[1]
-	collaborateur = modif[5]
+	collaborateur = modif[5].lower()
 	couple = (parlementaire, collaborateur)
 	rawdata = modif[1:42]
 
@@ -82,7 +82,7 @@ for couple in couple_contrats:
 	if len(couple_contrats[couple]) > 1:
 		for i  in range(len(couple_contrats[couple]) - 1, 0, -1):
 			datediff = parse(couple_contrats[couple][i]["entree"]) - parse(couple_contrats[couple][i-1]["sortie"])
-			if (datediff.total_seconds()/60/60/24 < 7):
+			if (datediff.total_seconds()/60/60/24 < 120):
 				couple_contrats[couple][i-1]["sortie"] = couple_contrats[couple][i]["sortie"]
 				couple_contrats[couple][i]["deleted"] = True
 for couple in couple_contrats:
