@@ -5,6 +5,7 @@ import os
 import csv
 import sys
 import math
+import re
 from dateutil.parser import parse
 from collections import defaultdict
 
@@ -22,6 +23,11 @@ collab = defaultdict(dict)
 def writecollab(unecollab):
 	parsed_entree = parse(unecollab["entree"])
 	nbdejours = ""
+	#Gestion de la fin de mandat
+	if unecollab["raw_data"][23]:
+		unecollab["sortie"] = unecollab["raw_data"][23] + " 12:00:00 +0200"
+	elif date_now:
+		unecollab["raw_data"][23] = re.sub(r' .*', '', date_now)
 	if unecollab["sortie"] == "" and date_now:
 		unecollab["sortie"] = date_now
 	if unecollab["sortie"] != "":
@@ -64,7 +70,7 @@ for modif in csv_modif:
 			collab[couple]["entree"] = "2017-06-21 00:00:00 +0200"
 		collab[couple]["sortie"] = modif[12]
 
-		# À chaque fin de contrat, l'information est versée dans un .csv de façon à s'assurer que 
+		# À chaque fin de contrat, l'information est versée dans un .csv de façon à s'assurer que
 		# les données ne soient pas écrasée en cas de réembauche du collab par le même parlementaire
 		validcollab(couple)
 		collab.pop(couple, None)
