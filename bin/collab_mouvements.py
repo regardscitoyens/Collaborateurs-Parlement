@@ -44,6 +44,7 @@ def validcollab(couple):
 
 for modif in csv_modif:
 	modif[1] = modif[14]
+        modif[25] = modif[34]
 	parlementaire = modif[1]
 	collaborateur = modif[5].lower()
 	couple = (parlementaire, collaborateur)
