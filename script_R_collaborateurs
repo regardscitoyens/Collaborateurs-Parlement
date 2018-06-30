@@ -1,1 +1,131 @@
+library("ggplot2", lib.loc="~/R/win-library/3.4")
+library(dplyr)
+library(readxl)
 
+
+setwd('C:/Users/devil/Documents/RC')
+data <- read.csv('sortie.csv', sep=',', header=TRUE)
+
+sapply(data,function(x) sum(is.na(x)))
+sapply(data, function(x) length(unique(x)))
+
+library(Amelia)
+missmap(data, main = "Missing values vs observed")
+
+names(data)
+#[1] "X"                    "parlementaire"        "groupe_sigle"         "sexe_parlementaire"  
+#[5] "contrat_mediane"      "nb_collaborateurs"    "duree_mandat"         "contrat_max"         
+#[9] "contrat_min"          "ratio_contrat_mandat" "parlementaire_femme"  "parlementaire_homme" 
+#[13] "groupe_GDR"           "groupe_NI"            "groupe_LR"            "groupe_LREM"         
+#[17] "groupe_NG"            "groupe_UAI"           "groupe_MODEM"         "groupe_LFI"     
+
+
+
+model <- glm(groupe_LREM ~ contrat_mediane,family=binomial(link='probit'),data=data)
+summary(model)
+
+reg <- lm(contrat_mediane ~ parlementaire_femme + groupe_LREM, data=data) 
+summary(reg)
+
+reg2 <- glm(contrat_mediane ~ parlementaire_femme + groupe_LREM, data=data) 
+summary(reg2)
+
+reg3 <- glm(contrat_mediane ~ parlementaire_femme + groupe_GDR + groupe_NI + groupe_LR + groupe_LREM + groupe_NG + groupe_UAI + groupe_MODEM + groupe_LFI, data=data) 
+summary(reg3)
+
+reg4 <- glm(contrat_mediane ~ parlementaire_femme + groupe_GDR + groupe_NI + groupe_LR + groupe_LREM + groupe_NG + groupe_UAI + groupe_MODEM + groupe_LFI + parlementaire_femme*groupe_NI, data=data) 
+summary(reg4)
+
+reg5 <- glm(contrat_mediane ~ nb_collaborateurs + parlementaire_femme  + groupe_LREM*parlementaire_femme + groupe_GDR + groupe_NI + groupe_LR + groupe_LREM + groupe_NG + groupe_UAI + groupe_MODEM + groupe_LFI, data=data) 
+summary(reg5)
+
+data2 <- read.csv('turnover_collaborateurs_variables.csv', sep=',', header=TRUE)
+names(data2)
+#[1] "X"                               "parlementaire"                   "nom_parlementaire"              
+#[4] "prÃ.nom_parlementaire"           "sexe_parlementaire_x"            "collaborateur"                  
+#[7] "nom_collaborateur"               "prÃ.nom_collaborateur"           "sexe_collaborateur"             
+#[10] "url_nosdeputes_api"              "url_institution"                 "information.complÃ.mentaire"    
+#[13] "date.action"                     "id"                              "nom"                            
+#[16] "nom_de_famille"                  "prenom"                          "sexe"                           
+#[19] "date_naissance"                  "lieu_naissance"                  "num_deptmt"                     
+#[22] "nom_circo"                       "num_circo"                       "mandat_debut"                   
+#[25] "mandat_fin"                      "ancien_depute_x"                 "groupe_sigle_x"                 
+#[28] "parti_ratt_financier"            "sites_web"                       "emails"                         
+#[31] "adresses"                        "autres_mandats"                  "anciens_autres_mandats"         
+#[34] "anciens_mandats"                 "profession"                      "place_en_hemicycle"             
+#[37] "url_an"                          "id_an"                           "slug"                           
+#[40] "url_nosdeputes"                  "nb_mandats_x"                    "entree"                         
+#[43] "sortie"                          "nombredejours"                   "contrat_fini"                   
+#[46] "duree_mandat_x"                  "parlementaire_age_x"             "groupe_sigle_y"                 
+#[49] "sexe_parlementaire_y"            "contrat_mediane"                 "nb_collaborateurs"              
+#[52] "duree_mandat_y"                  "contrat_max"                     "contrat_min"                    
+#[55] "contrat_fini_max"                "contrat_fini_min"                "ancien_depute_y"                
+#[58] "ratio_contrat_mandat"            "nb_mandats_y"                    "parlementaire_age_y"            
+#[61] "parlementaire_femme"             "parlementaire_homme"             "parlementaire_has_autre_mandats"
+#[64] "groupe_GDR"                      "groupe_NI"                       "groupe_LR"                      
+#[67] "groupe_LREM"                     "groupe_NG"                       "groupe_UAI"                     
+#[70] "groupe_MODEM"                    "groupe_LFI" 
+reg6 <- glm(contrat_mediane ~ nb_collaborateurs + parlementaire_femme  + 
+              groupe_LREM*parlementaire_femme + parlementaire_age_y +
+              nb_mandats_y + groupe_GDR + groupe_NI + groupe_LR + 
+              groupe_LREM + groupe_NG + groupe_UAI + groupe_MODEM + 
+              groupe_LFI, data=data2) 
+summary(reg6)
+
+reg7 <- glm(nombredejours ~ nb_collaborateurs + parlementaire_femme  + 
+             parlementaire_age_y +
+              nb_mandats_y + groupe_GDR + groupe_NI + groupe_LR + 
+              groupe_LREM + groupe_NG + groupe_UAI + groupe_MODEM + 
+              groupe_LFI, data=data2) 
+summary(reg7)
+logistic.display(reg7)
+
+library(vcd)
+library(epiDisplay)
+glm1 <- lm(nombredejours ~ nb_collaborateurs + parlementaire_femme  + 
+             parlementaire_age_y +
+              nb_mandats_y + groupe_GDR + groupe_NI + groupe_LR + 
+              groupe_LREM + groupe_NG + groupe_UAI + groupe_MODEM + 
+              groupe_LFI, data=data2) 
+
+data3 <- read.csv('turnover_collaborateurs_variables2.csv', sep=',', header=TRUE)
+
+
+glm2 <- lm(nombredejours ~ nb_collaborateurs + parlementaire_femme  + 
+             parlementaire_age + collaborateur_homme + 
+             nb_mandats + groupe_GDR + groupe_NI + groupe_LR + 
+             groupe_LREM + groupe_NG + groupe_UAI + groupe_MODEM + 
+             groupe_LFI, data=data3) 
+
+summary(glm2)
+
+summary(glm1)
+
+plot(data2$contrat_max, data2$parlementaire)
+
+table(data2$contrat_fini)
+
+data3$fini_dic <- as.numeric(data3$contrat_fini)
+
+data3$fini_dic[data2$fini_dic == 1] <- 0
+data3$fini_dic[data2$fini_dic == 2] <- 1
+
+
+
+glm3 <- glm(fini_dic ~ nb_collaborateurs + parlementaire_femme  + 
+             parlementaire_age + collaborateur_homme + 
+             nb_mandats + groupe_GDR + groupe_NI + groupe_LR + 
+             groupe_LREM + groupe_NG + groupe_UAI + groupe_MODEM + 
+              groupe_LFI, family=binomial(link="logit"), data=data3) 
+
+summary(glm3)
+
+table(data2$fini_dic)
+summary(data2$fini_dic)
+
+library(lme4)
+lme1 <- lme(nombredejours ~ nb_collaborateurs + parlementaire_femme  + 
+             parlementaire_age_y +
+             nb_mandats_y + groupe_GDR + groupe_NI + groupe_LR + 
+             groupe_LREM + groupe_NG + groupe_UAI + groupe_MODEM + 
+             groupe_LFI, data=data2) 
