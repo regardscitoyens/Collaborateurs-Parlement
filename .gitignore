@@ -3,3 +3,4 @@ cache
 data/deputes.json*
 data/senateurs.json*
 data/*.csv.tmp
+*/.ipynb_checkpoints/*
