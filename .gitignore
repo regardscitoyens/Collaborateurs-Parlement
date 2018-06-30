@@ -4,5 +4,6 @@ data/deputes.json*
 data/senateurs.json*
 data/*.csv.tmp
 */.ipynb_checkpoints/*
-*/.DS_Store
+.DS_Store
+.RData
 .Rhistory
