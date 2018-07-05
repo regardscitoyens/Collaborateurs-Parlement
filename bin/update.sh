@@ -4,6 +4,8 @@ CACHE=$1
 cd $(echo $0 | sed 's#/[^/]*$##')/..
 mkdir -p pdfs pdfmaps data
 
+git pull > /tmp/update_collabs.tmp
+
 function download_json {
   curl -sL "$1" > "$2.tmp"
   if python -m json.tool "$2.tmp" > /dev/null; then
@@ -14,7 +16,7 @@ function download_json {
 }
 
 if [ -z "$CACHE" ]; then
-  echo "Downloading sources..." > /tmp/update_collabs.tmp
+  echo "Downloading sources..." >> /tmp/update_collabs.tmp
   echo "--------------------------" >> /tmp/update_collabs.tmp
   download_json http://www.nossenateurs.fr/senateurs/json data/senateurs.json
   wget -q "http://www.senat.fr/pubagas/liste_senateurs_collaborateurs.pdf" -O pdfs/liste_senateurs_collaborateurs.pdf
