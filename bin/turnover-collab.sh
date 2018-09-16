@@ -20,4 +20,6 @@ sed 's/"url_api_RC"/"url_nosdeputes_api"/' data/turnover-collab.ajoutsuppression
 
 csvjoin --datetime-format "%m/%d/%Y %I:%M %p" -c url_nosdeputes_api data/turnover-collab.ajoutsuppression2.csv.tmp data/deputes.csv.tmp | sed 's/\r$//' > data/turnover-collab.ajoutsuppression-more.csv.tmp 2> /dev/null
 
-python bin/collab_mouvements.py data/turnover-collab.ajoutsuppression-more.csv.tmp "$(date --iso) 00:00:00 +0200"
+python bin/collab_mouvements.py data/turnover-collab.ajoutsuppression-more.csv.tmp "$(date -d "+ 1 day" --iso) 00:00:00 +0200"
+
+sed -i 's/\r$//' data/turnover.csv
