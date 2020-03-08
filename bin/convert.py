@@ -12,13 +12,13 @@ if len(sys.argv) > 2:
     drawMap = True
 
 minl = 100
-mint = 130
-maxt = 730
-l1 = 200
+mint = 200
+maxt = 1100
+l1 = 300
 parls_type = "senateurs"
 parls_first = True
 if "senateurs_collaborateurs" in filepath:
-    mint = 150
+    mint = 220
 elif "collaborateurs_senateurs" in filepath:
     parls_first = False
 elif "deputes_collaborateurs" in filepath:

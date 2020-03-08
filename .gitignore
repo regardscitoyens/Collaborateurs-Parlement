@@ -1,4 +1,5 @@
 pdfs/*.xml
+pdfs/*.png
 cache
 data/deputes.json*
 data/senateurs.json*
