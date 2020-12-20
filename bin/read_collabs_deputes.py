@@ -6,6 +6,10 @@ import os, sys, re, json
 with open(os.path.join("data", "deputes.json")) as f:
     parls = [p["depute"] for p in json.load(f)["deputes"]]
 
+sexemanquants = {
+  u"Elise MELLINGER": "Mme"
+}
+
 prenomscomposes = [
   u"Andrée",
   u"Isabelle",
@@ -30,6 +34,8 @@ for d in parls:
     record[9] = d["url_an"]
     for c in d["collaborateurs"]:
         record[4] = c["collaborateur"]
+        if record[4] in sexemanquants:
+            record[4] = sexemanquants[record[4]] + " " + record[4]
         carr = lowerize(record[4]).split(" ")
         if carr[2] in prenomscomposes:
             record[5] = " ".join(carr[3:])
