@@ -7,7 +7,8 @@ with open(os.path.join("data", "deputes.json")) as f:
     parls = [p["depute"] for p in json.load(f)["deputes"]]
 
 sexemanquants = {
-  u"Elise MELLINGER": "Mme"
+  u"Elise MELLINGER": "Mme",
+  u"Anne-Lise VERNIÈRES": "Mme"
 }
 
 prenomscomposes = [
