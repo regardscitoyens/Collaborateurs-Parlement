@@ -4,7 +4,7 @@ CACHE=$1
 cd $(echo $0 | sed 's#/[^/]*$##')/..
 mkdir -p pdfs pdfmaps data
 
-git pull > /tmp/update_collabs.tmp
+git stash && git pull && git stash pop > /tmp/update_collabs.tmp
 
 function download_json {
   curl -sL "$1" > "$2.tmp"
@@ -26,8 +26,15 @@ if [ -z "$CACHE" ]; then
   echo >> /tmp/update_collabs.tmp
 fi
 
-source /usr/local/bin/virtualenvwrapper.sh
-workon collabs
+#source /usr/local/bin/virtualenvwrapper.sh
+#workon collabs
+export PYENV_ROOT="$HOME/.pyenv"
+export PATH="$PYENV_ROOT/bin:$PATH"    # if `pyenv` is not already on PATH
+eval "$(pyenv init --path)"                                                                                                                                                                                                              
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
+export PYENV_VIRTUALENV_DISABLE_PROMPT=1
+pyenv activate collabs
 
 for pdffile in pdfs/*senateurs*.pdf; do
   echo "Processing $pdffile..." >> /tmp/update_collabs.tmp
