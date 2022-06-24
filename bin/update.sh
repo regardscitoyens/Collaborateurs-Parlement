@@ -21,7 +21,7 @@ if [ -z "$CACHE" ]; then
   download_json http://www.nossenateurs.fr/senateurs/json data/senateurs.json
   wget -q "http://www.senat.fr/pubagas/liste_senateurs_collaborateurs.pdf" -O pdfs/liste_senateurs_collaborateurs.pdf
   wget -q "http://www.senat.fr/pubagas/liste_collaborateurs_senateurs2.pdf" -O pdfs/liste_collaborateurs_senateurs2.pdf
-  download_json http://www.nosdeputes.fr/deputes/json data/deputes.json
+  download_json http://2022.nosdeputes.fr/deputes/json data/deputes.json
 #  wget -q "http://www2.assemblee-nationale.fr/static/collaborateurs/liste_deputes_collaborateurs.pdf" -O pdfs/liste_deputes_collaborateurs.pdf
   echo >> /tmp/update_collabs.tmp
 fi
