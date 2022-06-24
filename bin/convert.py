@@ -92,7 +92,6 @@ exceptions = [
     ("debre bernard andre", "debre bernard"),
     ("le borgn pierre-yves", "le borgn' pierre-yves"),
     ("vlody jean-jacques", "vlody jean jacques"),
-    ("parigi paul", "parigi paul toussaint"),
     ("fernique jacques bernard", "fernique jacques"),
     ("bourrat antoinette", "bourrat toine"),
     ("evrard marie agnes", "evrard marie"),
