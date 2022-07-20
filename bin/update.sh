@@ -4,9 +4,12 @@ CACHE=$1
 cd $(echo $0 | sed 's#/[^/]*$##')/..
 mkdir -p pdfs pdfmaps data
 
-git stash > /tmp/update_collabs.tmp 2>&1
+echo "Updating repository..." > /tmp/update_collabs.tmp
+echo "---------------------------" >> /tmp/update_collabs.tmp
+git stash >> /tmp/update_collabs.tmp 2>&1
 git pull >> /tmp/update_collabs.tmp 2>&1
 git stash pop >> /tmp/update_collabs.tmp 2>&1
+echo >> /tmp/update_collabs.tmp
 
 function download_json {
   curl -sL "$1" > "$2.tmp"
@@ -55,7 +58,7 @@ echo "---------------------------" >> /tmp/update_collabs.tmp
 ./bin/read_collabs_deputes.py > data/liste_deputes_collaborateurs.csv 2>> /tmp/update_collabs.tmp
 echo >> /tmp/update_collabs.tmp
 
-echo "Testing resulting CSVs..." >> /tmp/update_collabs.tmp
+echo "Testing and committing resulting CSVs..." >> /tmp/update_collabs.tmp
 echo "----------------------------" >> /tmp/update_collabs.tmp
 echo >> /tmp/update_collabs.tmp
 
@@ -69,17 +72,18 @@ if [ "$total" -lt "500" ]; then
   printlog=true
 else
   echo "Everything fine with AN, $total collaborateurs found" >> /tmp/update_collabs.tmp
-  echo >> /tmp/update_collabs.tmp
   if git status | grep "data/liste_deputes_collaborateurs.csv" > /dev/null; then
     printlog=true
     git commit data/liste_deputes_collaborateurs.csv -m "autoupdate députés" >> /tmp/update_collabs.tmp
     gitpush=true
   fi
+  echo >> /tmp/update_collabs.tmp
 fi
 
 if diff data/liste_senateurs_collaborateurs.csv data/liste_collaborateurs_senateurs2.csv | grep "^>" > /dev/null ; then
   echo "WARNING: differences between Sénat outputs from two sources:" >> /tmp/update_collabs.tmp
   diff data/liste_senateurs_collaborateurs.csv data/liste_collaborateurs_senateurs2.csv | grep "^[<>]" >> /tmp/update_collabs.tmp
+  echo >> /tmp/update_collabs.tmp
   printlog=true
 else
   total=$((`cat data/liste_senateurs_collaborateurs.csv | wc -l` - 1))
@@ -89,12 +93,12 @@ else
     printlog=true
   else
     echo "Everything fine with Sénat, $total collaborateurs found in both sources" >> /tmp/update_collabs.tmp
-    echo >> /tmp/update_collabs.tmp
     if git status | grep "data/liste.*senateurs.*.csv" > /dev/null; then
       printlog=true
       git commit data/liste*senateurs* pdfmaps/*senateurs* pdfs/*senateurs*.pdf -m "autoupdate sénateurs" >> /tmp/update_collabs.tmp
       gitpush=true
     fi
+    echo >> /tmp/update_collabs.tmp
   fi
 fi
 
