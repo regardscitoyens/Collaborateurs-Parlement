@@ -4,7 +4,9 @@ CACHE=$1
 cd $(echo $0 | sed 's#/[^/]*$##')/..
 mkdir -p pdfs pdfmaps data
 
-git stash && git pull && git stash pop > /tmp/update_collabs.tmp
+git stash > /tmp/update_collabs.tmp 2>&1
+git pull >> /tmp/update_collabs.tmp 2>&1
+git stash pop >> /tmp/update_collabs.tmp 2>&1
 
 function download_json {
   curl -sL "$1" > "$2.tmp"

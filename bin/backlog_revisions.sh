@@ -4,7 +4,7 @@ badcommits="\(bcb0b8de41ba7223fc12fd66f8b66b8b7b462be1\|7582589cc4b7c656489f5060
 
 stashed=false
 if git diff | grep . > /dev/null; then
-  git stash #> /dev/null 2>&1
+  git stash > /dev/null 2>&1
   stashed=true
 fi
 
@@ -19,13 +19,13 @@ for typ in depute senateur; do
       dat=$(echo $commit | awk '{print $1}')
       cid=$(echo $commit | awk '{print $4}')
       git checkout $cid > /dev/null 2>&1
-      lines=$(cat $fil | grep -v '^"parlementaire' | wc -l)
+      lines=$(cat $fil 2> /dev/null | grep -v '^"parlementaire' | wc -l)
       echo "$dat,$cid,$lines"
     done | uniq --check-chars=10 >> $ofil.tmp
   git checkout master > /dev/null 2>&1
 done
 if $stashed; then
-  git stash pop #> /dev/null 2>&1
+  git stash pop > /dev/null 2>&1
 fi
 for typ in depute senateur; do
   mv data/liste_${typ}s_collaborateurs-totaux.csv{.tmp,}
